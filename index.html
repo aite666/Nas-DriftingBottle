@@ -226,7 +226,7 @@
                 nonce: 0,
                 gasPrice: 1000000,
                 gasLimit: 2000000,
-                contract: {function: "newBottle", args: JSON.stringify([title, content])}
+                contract: {function: "newBottle", args: JSON.stringify([title, content, author])}
             }).then(function (call) {
                 if (call.execute_err === '') {
                     neb.api.call({address: account.getAddressString()}).then(function (state) {
