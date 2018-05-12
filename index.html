@@ -21,9 +21,14 @@
         <div>
             <h4 style="text-align: center;">步骤说明</h4>
             <p style="font-size: 20px;">1.登录自己的钱包查看余额</p>
-            <p style="font-size: 20px;">2.余额大于0.5nas的地址可以扔出一个漂流瓶</p>
-            <p style="font-size: 20px;">3.余额大于0.1nas的地址可以捞起一个漂流瓶</p>
+            <p style="font-size: 20px;">2.点击扔出漂流瓶可以扔出一个漂流瓶</p>
+            <p style="font-size: 20px;">3.点击捞起漂流瓶可以随机捞起一个漂流瓶</p>
             <p style="font-size: 20px;">4.应用推广阶段,仅需支付 gas 即可参与</p>
+        </div>
+
+        <div class="noExtension" id="noExtension" style="display: none;">
+            提示: 请安装
+            <a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a> 再使用星云漂流瓶
         </div>
 
         <div class="col s6">
@@ -64,28 +69,13 @@
 
 
         <div id="paperWall">
-            <!--<div style=";height: 250px;background: url(lib/img/paper.png) no-repeat;background-size: 100% 100%;margin:10px 30px;" class="col s3">
-                <p style="text-align: center;">主题</p>
-                <p style="text-align: center;">内容内容内容内容内容内容内容内容内容</p>
-                <p style="text-align: right;">作者：啊啊啊</p>
-                <p style="text-align: right;">时间：2018-05-11</p>
+            <!--<div style="height: 250px;background: url(lib/img/paper.png) no-repeat;background-size: 100% 100%;margin:10px 30px;" class="col s3">
+                <p style="text-align: right;font-size: 6px;word-wrap : break-word;position:relative;top:200px;margin: 0;">By:n1bUSoYrgTr7iBUR1LDS5svjLBd6wGdB4Ur</p>
+                <p style="text-align: center;font-size: 20px;margin: 0 0 4px 0;">主题</p>
+                <p style="text-align: center;margin: 0;">内容内容内容内容内容内容内容内容内容</p>
             </div>-->
         </div>
     </div>
-
-
-    <!--<table class="bordered" style="width: 80%;margin:  0 auto">
-        <thead>
-        <tr>
-            <th>主题</th>
-            <th>内容</th>
-            <th>作者</th>
-            <th>时间</th>
-        </tr>
-        </thead>
-        <tbody id="J_TbData">
-        </tbody>
-    </table>-->
 
 </div>
 
@@ -120,30 +110,24 @@
 <script src="lib/jquery-3.3.1.min.js"></script>
 
 <script src="lib/bootstrap-4.0.0-dist/js/bootstrap.min.js"></script>
+<script src="js/nebPay.js"></script>
 <script src="lib/nebPay.js"></script>
 <script src="lib/nebulas.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
 
 <script>
     "use strict";
-
-    //
-    //    $(".add").click(function () {
-    //        neb.api.call({
-    //            chainID: chainid,
-    //            from: account.getAddressString(),
-    //            to: contractAddress,
-    //            value: amount * 1e18,
-    //            nonce: 0,
-    //            gasPrice: 1000000,
-    //            gasLimit: 2000000,
-    //            contract: {function: "newBottle", args: JSON.stringify([hash])}
-    //        }).then(function (call) {
-    //
-    //        })
     $(document).ready(function () {
+
+        //如果安装了扩展，var“webExtensionWallet”将被注入到web页面中1
+        if(typeof(webExtensionWallet) === "undefined") {
+            $("#noExtension").show();
+        }else{
+            $("#noExtension").hide();
+        }
+
         $('.modal').modal();
-        var contractAddress = "n1GDU4SZ2pdkeVr1shtDNGFamQ2sZXR73ep";
+        var contractAddress = "n1yrt52LhB7Pibuk3XEcb6Y48kQuXXjuc2N";
         var HttpRequest = require("nebulas").HttpRequest;
         var Neb = require("nebulas").Neb;
         var Account = require("nebulas").Account;
@@ -153,6 +137,9 @@
         var neb = new Neb();
         var balance = 0;
         var chainid = 1;
+        var NebPay = require("nebpay"); //https://github.com/nebulasio/nebPay
+        var length = 0;
+        var nebPay = new NebPay();
         neb.setRequest(new HttpRequest("https://mainnet.nebulas.io"));
 
         $('#privatekey').change(function () {
@@ -167,7 +154,6 @@
 
                 });
             }
-
         });
 
         $('#keyfile').change(function (e) {
@@ -201,14 +187,6 @@
                 Materialize.toast('信息查询成功', 3000);
             });
         });
-        //        if (balance < 0.0000) {
-//            $("#choice_a_ticket").addClass("disabled")
-//            $("#choice_b_ticket").addClass("disabled")
-//
-//        } else {
-//            $("#choice_a_ticket").removeClass("disabled")
-//            $("#choice_b_ticket").removeClass("disabled")
-//        }
 
         $("#newBottle").click(function () {
             console.log(account);
@@ -219,38 +197,13 @@
             var title = $("#bottle_title").val();
             var content = $("#bottle_content").val();
             var author = account.getAddressString();
-            neb.api.call({
-                from: account.getAddressString(),
-                to: contractAddress,
-                value: 0.000001 * 1e18,
-                nonce: 0,
-                gasPrice: 1000000,
-                gasLimit: 2000000,
-                contract: {function: "newBottle", args: JSON.stringify([title, content, author])}
-            }).then(function (call) {
-                if (call.execute_err === '') {
-                    neb.api.call({address: account.getAddressString()}).then(function (state) {
-                        $('#balance').text(state.balance / 1e18 + ' NAS');
-                        var tx = new Transaction({
-                            chainID: chainid,
-                            from: account,
-                            to: contractAddress,
-                            value: 0.000001 * 1e18,
-                            nonce: parseInt(state.nonce) + 1,
-                            gasPrice: 1000000,
-                            gasLimit: 2000000,
-                            contract: {function: "newBottle", args: JSON.stringify([title, content,author])}
-
-                        });
-                        tx.signTransaction();
-                        neb.api.sendRawTransaction({data: tx.toProtoString()}).then(function (tx) {
-                            Materialize.toast('TXid: ' + tx.txhash, 5000);
-                        });
-                    });
-                } else {
-                    Materialize.toast(call.execute_err, 3000);
-                }
-            })
+            var callArgs = [];
+            callArgs.push(title);
+            callArgs.push(content);
+            callArgs.push(author);
+            nebPay.call(contractAddress, "0" ,"newBottle",JSON.stringify(callArgs) ,{
+                listener : cbPush1
+            });
         });
 
         $("#randomBottle").click(function () {
@@ -259,27 +212,36 @@
                 Materialize.toast('未登录钱包', 3000);
                 return;
             }
-            neb.api.call({
-                from: account.getAddressString(),
-                to: contractAddress,
-                value: 0,
-                nonce: 0,
-                gasPrice: 1000000,
-                gasLimit: 2000000,
-                contract: {function: "getRandomBottle", args: JSON.stringify([])}
-            }).then(function (call) {
-                if (call.execute_err === '') {
-                    var html = "";
-                    html += '<div style=";height: 250px;background: url(lib/img/paper.png) no-repeat;background-size: 100% 100%;margin:10px 30px;" class="col s3">';
-                    html += '<p style="text-align: center;">' + result.title + '</p>';
-                    html += '<p style="text-align: center;">'  + result.content + '</p>';
-                    html += '<p style="text-align: right;">作者：' + result.author + '</p>';
-                    html += '<p style="text-align: right;">时间：' + new Date(result.endTime * 1000).toLocaleString().replace(/年|月/g, "-").replace(/日/g, " ") + '</p>';
-                    html += '</div>';
-                    $("#paperWall").append(html);
-                }
-            })
+            nebPay.simulateCall(contractAddress, "0" ,"getLen",JSON.stringify([]) ,{
+                listener : cbPush2
+            });
+            var callArgs = [];
+            var random = parseInt(Math.random()*length);
+            callArgs.push(random);
+            nebPay.simulateCall(contractAddress, "0" ,"getOneBottle",JSON.stringify(callArgs) ,{
+                listener : cbPush3
+            });
         });
+
+        function cbPush1(resp) {
+            console.log(resp);
+        }
+
+        function cbPush2(resp) {
+            length = resp.result;
+        }
+
+        function cbPush3(resp) {
+            console.log(resp);
+            var result = JSON.parse(resp.result);
+            var html = "";
+            html += '<div style=";height: 250px;background: url(lib/img/paper.png) no-repeat;background-size: 100% 100%;margin:10px 30px;" class="col s3">';
+            html += '<p style="text-align: right;font-size: 6px;word-wrap : break-word;position:relative;top:200px;margin: 0;">By:' + result.author + '</p>';
+            html += '<p style="text-align: center;font-size: 20px;margin: 0 0 4px 0;">' + result.title + '</p>';
+            html += '<p style="text-align: center;margin: 0;">'  + result.content + '</p>';
+            html += '</div>';
+            $("#paperWall").append(html);
+        }
 
         //初始化
         function init() {
