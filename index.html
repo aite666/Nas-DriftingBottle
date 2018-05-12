@@ -219,7 +219,7 @@
             var title = $("#bottle_title").val();
             var content = $("#bottle_content").val();
             var author = account.getAddressString();
-            neb.api.simulateCall({
+            neb.api.call({
                 from: account.getAddressString(),
                 to: contractAddress,
                 value: 0.000001 * 1e18,
