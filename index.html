@@ -17,13 +17,14 @@
 </head>
 <body>
 <div class="row" style="background: url(lib/img/bg.png) no-repeat; background-size: 100% 100%;min-height:900px;">
+    <h3 style="text-align: center;margin-top: 0;padding-top:10px;color: #ff6447">星云漂流瓶</h3>
     <div class="col offset-s2 s8">
         <div>
-            <h4 style="text-align: center;">步骤说明</h4>
-            <p style="font-size: 20px;">1.登录自己的钱包查看余额</p>
-            <p style="font-size: 20px;">2.点击扔出漂流瓶可以扔出一个漂流瓶</p>
-            <p style="font-size: 20px;">3.点击捞起漂流瓶可以随机捞起一个漂流瓶</p>
-            <p style="font-size: 20px;">4.应用推广阶段,仅需支付 gas 即可参与</p>
+            <h4 style="text-align: center;font-size: 24px;">步骤说明</h4>
+            <p style="font-size: 16px;">1.登录自己的钱包查看余额</p>
+            <p style="font-size: 16px;">2.点击扔出漂流瓶可以扔出一个漂流瓶</p>
+            <p style="font-size: 16px;">3.点击捞起漂流瓶可以随机捞起一个漂流瓶</p>
+            <p style="font-size: 16px;">4.应用推广阶段,仅需支付 gas 即可参与</p>
         </div>
 
         <div class="noExtension" id="noExtension" style="display: none;">
@@ -31,35 +32,8 @@
             <a target="_blank" href="https://github.com/ChengOrangeJu/WebExtensionWallet">WebExtensionWallet</a> 再使用星云漂流瓶
         </div>
 
-        <div class="col s6">
-            <p style="font-size: 20px;">导入钱包文件</p>
-            <div class="file-field input-field ">
-                <button class="btn waves-effect waves-light red">
-                    <span>点击选择您的密钥文件</span>
-                    <input type="file" id="keyfile">
-                </button>
-                <div class="file-path-wrapper">
-                    <input class="file-path validate" type="text">
-                </div>
-            </div>
-        </div>
-        <div class="offset-s1 col s5">
-            <div id="keyfilepassworddiv" style="display: none;margin-top: 40px;">
-                <label for="keyfilepassword" class="active" style="font-size: 20px;color: #000;">请输入您的密钥文件密码</label>
-                <input placeholder="请输入您的密钥文件密码" class="center-align" id="keyfilepassword" type="password" style="font-size: 20px;color: #000;">
-            </div>
-        </div>
-        <div class="offset-s1 col s12">
-            <table class="bordered centered" style="margin: 15px 0;">
-                <tbody>
-                <tr>
-                    <td style="color: #000;font-weight: 700;">NAS 地址</td>
-                    <td id="address"></td>
-                    <td style="color: #000;font-weight: 700;">可用余额</td>
-                    <td id="balance"></td>
-                </tr>
-                </tbody>
-            </table>
+        <div class="link">
+            使用<a href="https://nebulas.io/">星云链</a>驱动，<a href="https://incentive.nebulas.io/cn/signup.html?invite=32KAi">提交DAPP获得100NAS</a>
         </div>
 
         <div class="offset-s1 col s12">
@@ -75,6 +49,7 @@
                 <p style="text-align: center;margin: 0;">内容内容内容内容内容内容内容内容内容</p>
             </div>-->
         </div>
+
     </div>
 
 </div>
@@ -128,72 +103,11 @@
 
         $('.modal').modal();
         var contractAddress = "n1yrt52LhB7Pibuk3XEcb6Y48kQuXXjuc2N";
-        var HttpRequest = require("nebulas").HttpRequest;
-        var Neb = require("nebulas").Neb;
-        var Account = require("nebulas").Account;
-        var account = null;
-        var keyfile = null;
-        var Transaction = require("nebulas").Transaction;
-        var neb = new Neb();
-        var balance = 0;
-        var chainid = 1;
         var NebPay = require("nebpay"); //https://github.com/nebulasio/nebPay
         var length = 0;
         var nebPay = new NebPay();
-        neb.setRequest(new HttpRequest("https://mainnet.nebulas.io"));
-
-        $('#privatekey').change(function () {
-            if ($('#privatekey')[0].value.trim().length === 64) {
-                Materialize.toast('正在查询地址信息', 3000);
-                account = new Account($("#privatekey")[0].value.trim());
-                $('#address').text(account.getAddressString());
-                neb.api.getAccountState({address: account.getAddressString()}).then(function (state) {
-                    balance = state.balance / 1e18
-                    $('#balance').text(state.balance / 1e18 + ' NAS');
-                    Materialize.toast('信息查询成功', 3000);
-
-                });
-            }
-        });
-
-        $('#keyfile').change(function (e) {
-            var $this = $(this), file = e.target.files[0], fr = new FileReader();
-            fr.onload = onload;
-            fr.readAsText(file);
-
-            function onload(e) {
-                try {
-                    keyfile = JSON.parse(e.target.result);
-                    $('#keyfilepassworddiv').show();
-                } catch (e) {
-                    Materialize.toast(e, 3000);
-                    return;
-                }
-            }
-        });
-        $('#keyfilepassword').change(function (e) {
-            Materialize.toast('正在查询地址信息', 3000);
-            account = new Account();
-            try {
-                account.fromKey(keyfile, $('#keyfilepassword')[0].value.trim());
-            } catch (e) {
-                Materialize.toast(e, 3000);
-                return;
-            }
-            $('#address').text(account.getAddressString());
-            neb.api.getAccountState({address: account.getAddressString()}).then(function (state) {
-                balance = state.balance / 1e18
-                $('#balance').text(state.balance / 1e18 + ' NAS');
-                Materialize.toast('信息查询成功', 3000);
-            });
-        });
 
         $("#newBottle").click(function () {
-            console.log(account);
-            if (account === null || account.getPrivateKey() === undefined) {
-                Materialize.toast('未登录钱包', 3000);
-                return;
-            }
             var title = $("#bottle_title").val();
             var content = $("#bottle_content").val();
             var author = account.getAddressString();
@@ -207,11 +121,6 @@
         });
 
         $("#randomBottle").click(function () {
-            console.log(account);
-            if (account === null || account.getPrivateKey() === undefined) {
-                Materialize.toast('未登录钱包', 3000);
-                return;
-            }
             nebPay.simulateCall(contractAddress, "0" ,"getLen",JSON.stringify([]) ,{
                 listener : cbPush2
             });
