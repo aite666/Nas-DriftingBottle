@@ -102,7 +102,7 @@
         }
 
         $('.modal').modal();
-        var contractAddress = "n1yrt52LhB7Pibuk3XEcb6Y48kQuXXjuc2N";
+        var contractAddress = "n1hsC9LjSunaS7nCuYqYQzBrCgvbpwX5Udz";
         var NebPay = require("nebpay"); //https://github.com/nebulasio/nebPay
         var length = 0;
         var nebPay = new NebPay();
@@ -110,11 +110,9 @@
         $("#newBottle").click(function () {
             var title = $("#bottle_title").val();
             var content = $("#bottle_content").val();
-            var author = account.getAddressString();
             var callArgs = [];
             callArgs.push(title);
             callArgs.push(content);
-            callArgs.push(author);
             nebPay.call(contractAddress, "0" ,"newBottle",JSON.stringify(callArgs) ,{
                 listener : cbPush1
             });

@@ -10,7 +10,8 @@ BottleContract.prototype = {
         this.bottleNum = 0;
     },
 
-    newBottle: function (title, content, author) {
+    newBottle: function (title, content) {
+        var author = Blockchain.transaction.from;
         var index = this.bottleNum;
         this.bottleMap.set(index, {
             id: index,
